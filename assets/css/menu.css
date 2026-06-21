@@ -1,0 +1,198 @@
+body {
+    margin: 0;
+    padding: 0;
+}
+
+.menu-page {
+    min-height: 100vh;
+    padding: 80px 50px;
+    background: #f8f8f8;
+    color: #111;
+}
+
+.menu-hero {
+    background: #ffd400;
+    padding: 110px 60px 60px;
+    border-radius: 0 0 30px 30px;
+    margin-bottom: 40px;
+}
+
+.menu-hero p {
+    margin: 0 0 8px;
+    font-weight: 900;
+    letter-spacing: 0.14em;
+}
+
+.menu-hero h1 {
+    margin: 0;
+    font-size: clamp(54px, 10vw, 120px);
+    line-height: 1;
+}
+
+.menu-hero span {
+    display: block;
+    margin-top: 12px;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.menu-tabs {
+    display: flex;
+    gap: 14px;
+    margin-top: 35px;
+    padding: 0;
+}
+
+.menu-tabs a {
+    padding: 12px 18px;
+    border: 2px solid #111;
+    color: #111;
+    font-weight: 900;
+    text-decoration: none;
+    border-radius: 12px;
+    transition: .2s ease;
+}
+
+.menu-tabs a.is-active {
+    background: #111;
+    color: #ffd400;
+}
+
+.menu-tabs a:hover {
+    transform: translateY(-2px);
+}
+
+.menu-grid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 22px;
+    margin: 0 auto;
+}
+
+.menu-item {
+    position: relative;
+    background: #fff;
+    border-radius: 24px;
+    overflow: hidden;
+    transition: .3s;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, .04);
+}
+
+.menu-item:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, .12);
+}
+
+.menu-item img {
+    width: 100%;
+    height: 260px;
+    padding: 20px;
+    object-fit: contain;
+    background: transparent;
+    box-sizing: border-box;
+}
+
+.menu-item h2 {
+    margin: 14px 0 6px;
+    padding: 0 20px;
+    font-size: 22px;
+    font-weight: 900;
+}
+
+.menu-item p {
+    margin: 0;
+    padding: 0 20px 24px;
+    font-size: 26px;
+    font-weight: 900;
+}
+
+.temp-badge {
+    position: absolute;
+    right: 18px;
+    bottom: 18px;
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 900;
+}
+
+.temp-badge.ice {
+    background: #e8f4ff;
+    color: #2196f3;
+}
+
+.temp-badge.hot {
+    background: #fff1eb;
+    color: #ff5722;
+}
+
+.best-badge,
+.season-badge {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    z-index: 5;
+    padding: 8px 12px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 900;
+}
+
+.best-badge {
+    background: #111;
+    color: #ffd400;
+}
+
+.season-badge {
+    background: #ffd400;
+    color: #111;
+}
+
+@media (max-width: 1024px) {
+    .menu-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 760px) {
+    .menu-page {
+        padding: 50px 20px;
+    }
+
+    .menu-hero {
+        padding: 45px 28px;
+    }
+
+    .menu-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+.modal-desc{
+    margin:30px 0;
+    line-height:1.8;
+    color:#444;
+}
+.modal-nutrition{
+    display:block;
+
+    margin-top:20px;
+
+    padding-top:20px;
+
+    border-top:1px solid #e5e5e5;
+
+    font-size:15px;
+
+    line-height:1.8;
+
+    color:#333;
+}
+.nutrition-title{
+    margin-top:30px;
+
+    font-size:22px;
+
+    font-weight:900;
+}

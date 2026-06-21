@@ -1,0 +1,45 @@
+.footer {
+    scroll-snap-align: end;
+    background: #111;
+    color: #fff;
+    padding: 50px 24px;
+    border-top: 4px solid #ffd400;
+}
+
+.footer-inner {
+    width: min(100%, 1200px);
+    margin: 0 auto;
+}
+
+.footer h3 {
+    margin: 0 0 20px;
+    font-size: 32px;
+    font-weight: 900;
+    color: #ffd400;
+}
+
+.footer p {
+    margin: 8px 0;
+    font-size: 15px;
+    color: #ddd;
+}
+
+.footer small {
+    display: block;
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255, 255, 255, .15);
+    color: #999;
+}
+
+.footer-links {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.footer-links a {
+    color: #ffd400;
+    text-decoration: none;
+    font-weight: 700;
+}

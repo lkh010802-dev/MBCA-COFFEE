@@ -1,0 +1,51 @@
+.global-menu {
+  position: fixed;
+  top: 72px;
+  right: 0;
+  z-index: 999;
+  width: min(88%, 390px);
+  height: calc(100vh - 72px);
+  overflow-y: auto;
+  background: #111;
+  transform: translateX(100%);
+  visibility: hidden;
+  transition: transform 0.35s ease, visibility 0.35s;
+}
+
+.global-menu.is-open {
+  transform: translateX(0);
+  visibility: visible;
+}
+
+.menu-panel {
+  display: grid;
+  gap: 24px;
+  padding: 28px;
+}
+
+.menu-panel section {
+  display: grid;
+  gap: 8px;
+}
+
+.menu-panel h2 {
+  margin: 0 0 6px;
+  color: #ffd400;
+  font-size: 18px;
+}
+
+.menu-panel a {
+  padding: 11px 0;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 800;
+  text-decoration: none;
+  border-bottom: 1px solid #333;
+}
+
+@media (max-width: 900px) {
+  .global-menu {
+    top: 64px;
+    height: calc(100vh - 64px);
+  }
+}

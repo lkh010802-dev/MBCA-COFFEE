@@ -1,0 +1,213 @@
+.mypage {
+    min-height: 100vh;
+    padding: 110px 24px 60px;
+    background: #ffd400;
+    color: #111;
+}
+
+.mypage-hero,
+.profile-card,
+.mypage-grid {
+    width: min(100%, 1120px);
+    margin: 0 auto;
+}
+
+.mypage-hero {
+    margin-bottom: 30px;
+}
+
+.mypage-hero p {
+    margin: 0 0 8px;
+    font-weight: 900;
+    letter-spacing: .14em;
+}
+
+.mypage-hero h1 {
+    margin: 0;
+    font-size: clamp(54px, 10vw, 120px);
+    line-height: 1;
+}
+
+.profile-card {
+    padding: 40px;
+    margin-bottom: 24px;
+
+    background: #fff;
+
+    border-radius: 24px;
+
+    box-shadow:
+        0 15px 40px rgba(0,0,0,.08);
+}
+
+.profile-card h2 {
+    margin: 0 0 10px;
+    font-size: 34px;
+}
+
+.profile-card span {
+    display: inline-block;
+    padding: 8px 14px;
+    background: #111;
+    color: #ffd400;
+    font-weight: 900;
+}
+
+.profile-card ul {
+    margin: 18px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.profile-card li {
+    margin-bottom: 8px;
+    font-weight: 800;
+}
+
+.mypage-grid{
+    display:grid;
+    grid-template-columns: repeat(2, minmax(280px, 1fr));
+    gap:24px;
+    max-width:900px;
+}
+
+.mypage-box {
+    padding: 30px;
+
+    background: #fff;
+
+    border-radius: 24px;
+
+    box-shadow:
+        0 12px 30px rgba(0,0,0,.06);
+}
+
+.mypage-box h2 {
+    margin-top: 0;
+}
+
+.info-row {
+    margin-bottom: 14px;
+}
+
+.info-row strong {
+    display: block;
+    margin-bottom: 4px;
+}
+
+.mypage-box button {
+    padding: 12px 16px;
+    border: 0;
+    background: #111;
+    color: #ffd400;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.qna-item {
+    padding: 12px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+.qna-item strong {
+    display: block;
+}
+
+.qna-item span {
+    color: #0a7a0a;
+    font-weight: 900;
+}
+
+.qna-item small {
+    color: #666;
+}
+
+
+@media (max-width: 760px) {
+
+    .mypage-grid {
+        grid-template-columns: 1fr;
+    }
+
+}
+.mypage-actions{
+    display:flex;
+    gap:12px;
+    margin-top:25px;
+}
+
+.mypage-actions a{
+    flex:1;
+
+    text-align:center;
+
+    padding:14px;
+
+    background:#111;
+
+    color:#ffd400;
+
+    font-weight:900;
+
+    text-decoration:none;
+
+    border-radius:12px;
+
+    transition:.2s;
+}
+
+.mypage-actions a:hover{
+    transform:translateY(-2px);
+}
+.admin-badge{
+    margin-left:10px;
+
+    background:#ffd400 !important;
+    color:#111 !important;
+
+    border:2px solid #111;
+
+    border-radius:999px;
+
+    padding:8px 16px;
+}
+.qna-item{
+    padding:16px 0;
+}
+
+.qna-item span{
+    display:inline-block;
+
+    margin-top:6px;
+
+    padding:4px 10px;
+
+    border-radius:999px;
+
+    background:#e8f7ea;
+
+    color:#0a7a0a;
+
+    font-size:13px;
+}
+.profile-actions{
+    display:flex;
+    gap:12px;
+    margin-top:24px;
+    flex-wrap:wrap;
+}
+
+.profile-actions a{
+    padding:14px 20px;
+    background:#111;
+    color:#ffd400;
+    border-radius:12px;
+    font-weight:900;
+    text-decoration:none;
+}
+
+.profile-actions .admin-link{
+    background:#ffd400;
+    color:#111;
+    border:2px solid #111;
+}
