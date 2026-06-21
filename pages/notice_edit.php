@@ -1,51 +1,15 @@
 <?php
 
-session_start();
-
+require_once __DIR__ . '/../includes/auth.php';
+require_admin();
 include __DIR__ . '/../config/database.php';
-
-if(
-    !isset($_SESSION['role']) ||
-    $_SESSION['role'] !== 'admin'
-){
-    die('관리자만 가능합니다.');
-}
 
 $id = (int)($_GET['id'] ?? 0);
 
-if($_SERVER['REQUEST_METHOD'] === 'POST'){
-
-    $title = trim($_POST['title']);
-    $content = trim($_POST['content']);
-    $isPinned =
-    isset($_POST['is_pinned'])
-    ? 1
-    : 0;
-
-    mysqli_query(
-        $db,
-"UPDATE notices
- SET
-    title='$title',
-    content='$content',
-    is_pinned=$isPinned
- WHERE id=$id"
-    );
-
-    header(
-        "Location: news_view.php?id=$id&type=notice"
-    );
-    exit;
-}
-
-$result = mysqli_query(
-    $db,
-    "SELECT *
-     FROM notices
-     WHERE id=$id"
-);
-
-$post = mysqli_fetch_assoc($result);
+$stmt = mysqli_prepare($db, 'SELECT * FROM notices WHERE id = ?');
+mysqli_stmt_bind_param($stmt, 'i', $id);
+mysqli_stmt_execute($stmt);
+$post = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
 ?>
 <!DOCTYPE html>
 <html lang="ko">
@@ -72,12 +36,14 @@ $post = mysqli_fetch_assoc($result);
 
 <h1>공지 수정</h1>
 
-<form method="post">
+<form method="post" action="/coffee/actions/notice_update.php">
+<?= csrf_field() ?>
+<input type="hidden" name="id" value="<?= $id ?>">
 
 <input
 type="text"
 name="title"
-value="<?= htmlspecialchars($post['title']) ?>"
+value="<?= e($post['title']) ?>"
 required
 >
 
@@ -85,7 +51,7 @@ required
 name="content"
 rows="10"
 required
-><?= htmlspecialchars($post['content']) ?></textarea>
+><?= e($post['content']) ?></textarea>
 <label>
 
 <input

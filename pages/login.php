@@ -1,48 +1,6 @@
 <?php
-
-session_start();
-
-include __DIR__ . '/../config/database.php';
-
-$errorMessage = '';
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-$userId = trim($_POST['user_id']);
-$password = trim($_POST['password']);
-
-$sql = "SELECT *
-        FROM users
-        WHERE userid='$userId'";
-
-$result = mysqli_query($db, $sql);
-
-$user = mysqli_fetch_assoc($result);
-
-if (
-    $user &&
-    password_verify(
-        $password,
-        $user['password']
-    )
-) {
-
-    $_SESSION['userid'] = $user['userid'];
-    $_SESSION['name'] = $user['name'];
-    $_SESSION['role'] = $user['role'];
-
-    echo "<script>
-            alert('로그인 성공');
-            location.href='/coffee/index.php';
-          </script>";
-    exit;
-
-} else {
-
-    $errorMessage =
-        '아이디 또는 비밀번호가 일치하지 않습니다.';
-}
-}
+require_once __DIR__ . '/../includes/auth.php';
+$errorMessage = pull_flash('login_error', '');
 ?>
 
 <!DOCTYPE html>
@@ -67,10 +25,11 @@ if (
       </div>
 
       <?php if ($errorMessage): ?>
-        <p class="auth-error"><?= htmlspecialchars($errorMessage, ENT_QUOTES, 'UTF-8') ?></p>
+        <p class="auth-error"><?= e($errorMessage) ?></p>
       <?php endif; ?>
 
-      <form class="auth-form" action="#" method="post">
+      <form class="auth-form" action="/coffee/actions/login.php" method="post">
+<?= csrf_field() ?>
         <label for="userId">아이디</label>
         <input id="userId" name="user_id" type="text" placeholder="아이디를 입력하세요" required>
 

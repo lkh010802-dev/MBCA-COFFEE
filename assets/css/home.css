@@ -550,9 +550,6 @@ body {
     color: #fff;
     font-weight: 900;
 }
-.event-info small {
-    font-weight: 900;
-}
 .event-benefits {
     display: grid;
     grid-template-columns: repeat(4, 1fr);

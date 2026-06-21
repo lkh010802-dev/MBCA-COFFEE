@@ -1,7 +1,6 @@
 <?php
-if(session_status() === PHP_SESSION_NONE){
-    session_start();
-}
+require_once __DIR__ . '/auth.php';
+ensure_session_started();
 ?>
 
 <header class="site-header">

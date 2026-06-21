@@ -9,9 +9,13 @@ MBCA COFFEE COMMUNITY PAGE
 <?php
 
 
-session_start();
+require_once __DIR__ . '/../includes/auth.php';
+ensure_session_started();
 
 $boardType = $_GET['type'] ?? 'notice';
+if (!in_array($boardType, ['notice', 'qna'], true)) {
+    $boardType = 'notice';
+}
 $keyword = trim(
     $_GET['keyword'] ?? ''
 );
@@ -30,16 +34,9 @@ $offset =
     * $perPage;
 
 include __DIR__ . '/../config/database.php';
-
-function e($value) {
-    return htmlspecialchars(
-        (string)$value,
-        ENT_QUOTES,
-        'UTF-8'
-    );
-}
+$searchKeyword = '%' . $keyword . '%';
 if ($boardType === 'notice') {
-$result = mysqli_query(
+$stmt = mysqli_prepare(
     $db,
     "SELECT
         id,
@@ -48,12 +45,15 @@ $result = mysqli_query(
         created_at,
         is_pinned
      FROM notices
-     WHERE title LIKE '%$keyword%'
+     WHERE title LIKE ?
 ORDER BY
 is_pinned DESC,
 id DESC
-LIMIT $offset, $perPage"
+LIMIT ?, ?"
 );
+mysqli_stmt_bind_param($stmt, 'sii', $searchKeyword, $offset, $perPage);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
 
     $rows = [];
 
@@ -73,7 +73,7 @@ while ($row = mysqli_fetch_assoc($result)) {
 
 elseif ($boardType === 'qna') {
 
-$result = mysqli_query(
+$stmt = mysqli_prepare(
     $db,
     "SELECT
         id,
@@ -83,10 +83,13 @@ $result = mysqli_query(
         views,
         created_at
 FROM qna
-WHERE title LIKE '%$keyword%'
+WHERE title LIKE ?
 ORDER BY id DESC
-LIMIT $offset, $perPage"
+LIMIT ?, ?"
 );
+mysqli_stmt_bind_param($stmt, 'sii', $searchKeyword, $offset, $perPage);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
 
     $rows = [];
 
@@ -166,21 +169,27 @@ else {
 }
 if ($boardType === 'notice') {
 
-    $countResult = mysqli_query(
+    $stmt = mysqli_prepare(
         $db,
         "SELECT COUNT(*)
          FROM notices
-         WHERE title LIKE '%$keyword%'"
+         WHERE title LIKE ?"
     );
+    mysqli_stmt_bind_param($stmt, 's', $searchKeyword);
+    mysqli_stmt_execute($stmt);
+    $countResult = mysqli_stmt_get_result($stmt);
 
 } else {
 
-    $countResult = mysqli_query(
+    $stmt = mysqli_prepare(
         $db,
         "SELECT COUNT(*)
          FROM qna
-         WHERE title LIKE '%$keyword%'"
+         WHERE title LIKE ?"
     );
+    mysqli_stmt_bind_param($stmt, 's', $searchKeyword);
+    mysqli_stmt_execute($stmt);
+    $countResult = mysqli_stmt_get_result($stmt);
 }
 
 $totalRows =

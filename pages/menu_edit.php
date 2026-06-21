@@ -1,89 +1,19 @@
 <?php
 
-session_start();
-
-if (
-    !isset($_SESSION['role'])
-    || $_SESSION['role'] !== 'admin'
-) {
-    die('관리자만 접근 가능합니다.');
-}
+require_once __DIR__ . '/../includes/auth.php';
+require_admin();
+$uploadError = pull_flash('upload_error', '');
 
 require_once __DIR__ . '/../config/database.php';
 
 $id = (int)$_GET['id'];
-$result = mysqli_query(
-    $db,
-    "SELECT * FROM menus WHERE id=$id"
-);
-
-$menu = mysqli_fetch_assoc($result);
+$stmt = mysqli_prepare($db, 'SELECT * FROM menus WHERE id = ?');
+mysqli_stmt_bind_param($stmt, 'i', $id);
+mysqli_stmt_execute($stmt);
+$menu = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
 
 if (!$menu) {
     die('존재하지 않는 메뉴입니다.');
-}
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-    $name = trim($_POST['name']);
-    $category = trim($_POST['category']);
-    $price = (int)$_POST['price'];
-    $description = trim($_POST['description']);
-    $nutrition = trim($_POST['nutrition']);
-    $is_best =
-    isset($_POST['is_best'])
-    ? 1
-    : 0;
-    
-
-$is_season =
-    isset($_POST['is_season'])
-    ? 1
-    : 0;
-    $temperature_type =
-    $_POST['temperature_type'];
-
-    $imagePath = $menu['image'];
-        if (
-        isset($_FILES['image'])
-        && $_FILES['image']['error'] === 0
-    ) {
-
-        $fileName =
-            time() . '_' .
-            basename($_FILES['image']['name']);
-
-        $uploadDir =
-            $_SERVER['DOCUMENT_ROOT']
-            . '/coffee/assets/images/menu/';
-
-        move_uploaded_file(
-            $_FILES['image']['tmp_name'],
-            $uploadDir . $fileName
-        );
-
-        $imagePath =
-            '/coffee/assets/images/menu/' . $fileName;
-    }
-        mysqli_query(
-        $db,
-        "
-        UPDATE menus
-        SET
-            name='$name',
-            category='$category',
-            temperature_type='$temperature_type',
-            price='$price',
-            description='$description',
-            nutrition='$nutrition',
-            image='$imagePath',
-            is_best='$is_best',
-            is_season='$is_season'
-        WHERE id=$id
-        "
-    );
-
-    header('Location: admin_menus.php');
-    exit;
 }
 ?>
 <!DOCTYPE html>
@@ -103,14 +33,17 @@ $is_season =
 </p>
 
 <h1>메뉴 수정</h1>
+<?php if ($uploadError): ?><p class="form-message error"><?= e($uploadError) ?></p><?php endif; ?>
 
-<form method="post" enctype="multipart/form-data">
+<form method="post" action="/coffee/actions/menu_update.php" enctype="multipart/form-data">
+<?= csrf_field() ?>
+<input type="hidden" name="id" value="<?= $id ?>">
     <p>
 메뉴명<br>
 <input
     type="text"
     name="name"
-    value="<?= htmlspecialchars($menu['name']) ?>"
+    value="<?= e($menu['name']) ?>"
     required
 >
 </p>
@@ -179,7 +112,7 @@ required
 <p>
 설명<br>
 
-<textarea name="description"><?= htmlspecialchars($menu['description']) ?></textarea>
+<textarea name="description"><?= e($menu['description']) ?></textarea>
 
 </p>
 <p>
@@ -220,7 +153,7 @@ value="1"
 <input
 type="text"
 name="nutrition"
-value="<?= htmlspecialchars($menu['nutrition']) ?>"
+value="<?= e($menu['nutrition']) ?>"
 >
 
 </p>
@@ -232,7 +165,7 @@ value="<?= htmlspecialchars($menu['nutrition']) ?>"
 
 <img
 id="preview"
-src="<?= $menu['image'] ?>"
+src="<?= e(image_url($menu['image'], 'menu')) ?>"
 width="150"
 >
 </p>

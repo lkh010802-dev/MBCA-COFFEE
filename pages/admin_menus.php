@@ -1,14 +1,6 @@
-<?php include __DIR__ . '/../includes/admin_nav.php'; ?>
 <?php
-
-session_start();
-
-if (
-    !isset($_SESSION['role'])
-    || $_SESSION['role'] !== 'admin'
-) {
-    die('관리자만 접근 가능합니다.');
-}
+require_once __DIR__ . '/../includes/auth.php';
+require_admin();
 
 require_once __DIR__ . '/../config/database.php';
 
@@ -28,41 +20,9 @@ $result = mysqli_query($db, $sql);
 <meta charset="UTF-8">
 <title>메뉴 관리</title>
 
-<style>
-
-body{
-    font-family: sans-serif;
-    padding:40px;
-}
-
-table{
-    width:100%;
-    border-collapse:collapse;
-}
-
-th,
-td{
-    border:1px solid #ddd;
-    padding:10px;
-}
-
-th{
-    background:#f5f5f5;
-}
-
-.add-btn{
-    display:inline-block;
-    margin-bottom:20px;
-    padding:10px 16px;
-    background:#333;
-    color:white;
-    text-decoration:none;
-}
-
-</style>
-
 </head>
-<body>
+<body class="admin-list-page">
+<?php include __DIR__ . '/../includes/admin_nav.php'; ?>
 
 <p>
     <a href="/coffee/pages/admin.php">
@@ -93,7 +53,7 @@ th{
 <tr>
     <td>
         <img
-            src="<?= $menu['image'] ?>"
+            src="<?= e(image_url($menu['image'], 'menu')) ?>"
             width="80"
                     width:80px;
                     height:80px;
@@ -130,12 +90,11 @@ th{
 
         |
 
-        <a
-            href="menu_delete.php?id=<?= $menu['id'] ?>"
-            onclick="return confirm('삭제하시겠습니까?');"
-        >
-            삭제
-        </a>
+        <form class="inline-delete-form" method="post" action="/coffee/actions/menu_delete.php" onsubmit="return confirm('삭제하시겠습니까?');">
+            <?= csrf_field() ?>
+            <input type="hidden" name="id" value="<?= (int)$menu['id'] ?>">
+            <button class="delete-link" type="submit">삭제</button>
+        </form>
 
     </td>
 </tr>

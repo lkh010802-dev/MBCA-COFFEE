@@ -1,25 +1,19 @@
 <?php
 
-session_start();
-
+require_once __DIR__ . '/../includes/auth.php';
+require_login();
 include __DIR__ . '/../config/database.php';
-
-if (!isset($_SESSION['userid'])) {
-
-    header('Location: /coffee/pages/login.php');
-    exit;
-}
 
 $userid = $_SESSION['userid'];
 
-$sql = "SELECT * FROM users
-        WHERE userid='$userid'";
-
-$result = mysqli_query($db, $sql);
+$stmt = mysqli_prepare($db, 'SELECT * FROM users WHERE userid = ?');
+mysqli_stmt_bind_param($stmt, 's', $userid);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
 
 $user = mysqli_fetch_assoc($result);
 
-$qnaResult = mysqli_query(
+$stmt = mysqli_prepare(
     $db,
     "SELECT
         id,
@@ -27,10 +21,13 @@ $qnaResult = mysqli_query(
         status,
         created_at
      FROM qna
-     WHERE userid = '$userid'
+     WHERE userid = ?
      ORDER BY id DESC
      LIMIT 3"
 );
+mysqli_stmt_bind_param($stmt, 's', $userid);
+mysqli_stmt_execute($stmt);
+$qnaResult = mysqli_stmt_get_result($stmt);
 
 ?>
 <!DOCTYPE html>
@@ -59,12 +56,12 @@ $qnaResult = mysqli_query(
 
         <div class="info-row">
             <strong>이름</strong>
-            <span><?= $user['name'] ?></span>
+            <span><?= e($user['name']) ?></span>
         </div>
 
         <div class="info-row">
             <strong>이메일</strong>
-            <span><?= $user['email'] ?></span>
+            <span><?= e($user['email']) ?></span>
         </div>
 
         <div class="mypage-actions">
@@ -93,7 +90,7 @@ $qnaResult = mysqli_query(
                 <div class="qna-item">
                     <strong>
                         <a href="/coffee/pages/news_view.php?id=<?= $qna['id'] ?>&type=qna">
-                            <?= htmlspecialchars($qna['title']) ?>
+                            <?= e($qna['title']) ?>
                         </a>
                     </strong>
 

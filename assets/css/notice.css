@@ -515,3 +515,16 @@
     background: #e8f7ea;
     color: #0a7a0a;
 }
+.inline-delete-form {
+    display: inline;
+}
+
+.delete-link {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-decoration: none;
+    cursor: pointer;
+}

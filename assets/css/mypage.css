@@ -105,7 +105,7 @@
 }
 
 .qna-item {
-    padding: 12px 0;
+    padding: 16px 0;
     border-bottom: 1px solid #ddd;
 }
 
@@ -114,7 +114,13 @@
 }
 
 .qna-item span {
+    display: inline-block;
+    margin-top: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: #e8f7ea;
     color: #0a7a0a;
+    font-size: 13px;
     font-weight: 900;
 }
 
@@ -170,25 +176,6 @@
     border-radius:999px;
 
     padding:8px 16px;
-}
-.qna-item{
-    padding:16px 0;
-}
-
-.qna-item span{
-    display:inline-block;
-
-    margin-top:6px;
-
-    padding:4px 10px;
-
-    border-radius:999px;
-
-    background:#e8f7ea;
-
-    color:#0a7a0a;
-
-    font-size:13px;
 }
 .profile-actions{
     display:flex;

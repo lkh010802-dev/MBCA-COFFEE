@@ -169,30 +169,3 @@ body {
         grid-template-columns: repeat(2, 1fr);
     }
 }
-.modal-desc{
-    margin:30px 0;
-    line-height:1.8;
-    color:#444;
-}
-.modal-nutrition{
-    display:block;
-
-    margin-top:20px;
-
-    padding-top:20px;
-
-    border-top:1px solid #e5e5e5;
-
-    font-size:15px;
-
-    line-height:1.8;
-
-    color:#333;
-}
-.nutrition-title{
-    margin-top:30px;
-
-    font-size:22px;
-
-    font-weight:900;
-}

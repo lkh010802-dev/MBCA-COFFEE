@@ -1,5 +1,6 @@
 <?php
 
+require_once __DIR__ . '/../functions/helpers.php';
 require_once __DIR__ . '/../config/database.php';
 
 $isAdmin = true;
@@ -11,14 +12,6 @@ ORDER BY id DESC
 ";
 
 $result = mysqli_query($db, $sql);
-
-function e($value) {
-    return htmlspecialchars(
-        (string)$value,
-        ENT_QUOTES,
-        'UTF-8'
-    );
-}
 ?>
 <!DOCTYPE html>
 <html lang="ko">
@@ -65,7 +58,7 @@ function e($value) {
               aria-label="<?= e($event['title']) ?> 상세 보기"
           >
             <div class="event-image">
-              <img src="<?= e($event['thumbnail']) ?>" alt="<?= e($event['title']) ?>">
+              <img src="<?= e(image_url($event['thumbnail'], 'event')) ?>" alt="<?= e($event['title']) ?>">
               <?php if ($isEnded): ?>
                 <div class="ended-overlay">
                   <strong>이벤트 종료</strong>

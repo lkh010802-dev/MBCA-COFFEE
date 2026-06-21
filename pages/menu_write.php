@@ -1,95 +1,9 @@
 <?php
 
-session_start();
+require_once __DIR__ . '/../includes/auth.php';
+require_admin();
+$uploadError = pull_flash('upload_error', '');
 
-if (
-    !isset($_SESSION['role'])
-    || $_SESSION['role'] !== 'admin'
-) {
-    die('관리자만 접근 가능합니다.');
-}
-
-require_once __DIR__ . '/../config/database.php';
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-    $name = trim($_POST['name']);
-    $category = trim($_POST['category']);
-    $price = (int)$_POST['price'];
-    $description = trim($_POST['description']);
-    $nutrition = trim($_POST['nutrition']);
-    $is_best =
-    isset($_POST['is_best'])
-    ? 1
-    : 0;
-
-$is_season =
-    isset($_POST['is_season'])
-    ? 1
-    : 0;
-
-    $imagePath = '';
-
-    if (
-        isset($_FILES['image'])
-        && $_FILES['image']['error'] === 0
-    ) {
-
-        $fileName = time() . '_' . basename($_FILES['image']['name']);
-
-        $uploadDir =
-            $_SERVER['DOCUMENT_ROOT']
-            . '/coffee/assets/images/menu/';
-
-        $uploadPath = $uploadDir . $fileName;
-
-        move_uploaded_file(
-            $_FILES['image']['tmp_name'],
-            $uploadPath
-        );
-
-        $imagePath =
-            '/coffee/assets/images/menu/' . $fileName;
-    }
-$temperature_type =
-    $_POST['temperature_type'] ?? null;
-
-$temperatureValue =
-    $temperature_type
-    ? "'$temperature_type'"
-    : "NULL";
-$sql = "
-INSERT INTO menus
-(
-    name,
-    category,
-    price,
-    description,
-    nutrition,
-    image,
-    is_best,
-    is_season,
-    temperature_type
-)
-VALUES
-(
-    '$name',
-    '$category',
-    '$price',
-    '$description',
-    '$nutrition',
-    '$imagePath',
-    '$is_best',
-    '$is_season',
-    $temperatureValue
-)
-";
-
-    mysqli_query($db, $sql);
-
-    header('Location: admin_menus.php');
-    exit;
-}
 ?>
 
 <!DOCTYPE html>
@@ -108,8 +22,10 @@ VALUES
 </p>
 
 <h1>메뉴 등록</h1>
+<?php if ($uploadError): ?><p class="form-message error"><?= e($uploadError) ?></p><?php endif; ?>
 
-<form method="post" enctype="multipart/form-data">
+<form method="post" action="/coffee/actions/menu_create.php" enctype="multipart/form-data">
+<?= csrf_field() ?>
 
 <p>
 메뉴명<br>
@@ -197,11 +113,8 @@ VALUES
 <img
     id="preview"
     src=""
-    style="
-        width:200px;
-        display:none;
-        border:1px solid #ddd;
-    "
+    class="upload-preview upload-preview-bordered"
+    alt="메뉴 이미지 미리보기"
 >
 
 <button type="submit">
@@ -209,33 +122,6 @@ VALUES
 </button>
 
 </form>
-<script>
-
-const imageInput =
-    document.querySelector('input[name="image"]');
-
-const preview =
-    document.getElementById('preview');
-
-imageInput.addEventListener('change', function(){
-
-    const file = this.files[0];
-
-    if(!file) return;
-
-    const reader = new FileReader();
-
-    reader.onload = function(e){
-
-        preview.src = e.target.result;
-        preview.style.display = 'block';
-
-    };
-
-    reader.readAsDataURL(file);
-
-});
-
-</script>
+<script src="/coffee/assets/js/image-preview.js"></script>
 </body>
 </html>

@@ -1,40 +1,17 @@
 <?php
 
-session_start();
-
+require_once __DIR__ . '/../includes/auth.php';
+require_login();
 include __DIR__ . '/../config/database.php';
 
-if (!isset($_SESSION['userid'])) {
-    header('Location: /coffee/pages/login.php');
-    exit;
-}
+$message = pull_flash('qna_message', '');
 
-$message = '';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-    $userid = $_SESSION['userid'];
-    $title = trim($_POST['title']);
-    $content = trim($_POST['content']);
-
-    $sql = "INSERT INTO qna
-            (userid, title, content)
-            VALUES
-            ('$userid', '$title', '$content')";
-
-    if (mysqli_query($db, $sql)) {
-        $message = '문의가 등록되었습니다.';
-    } else {
-        $message = '등록 실패';
-    }
-}
-
-$listSql = "SELECT *
-            FROM qna
-            WHERE userid='{$_SESSION['userid']}'
-            ORDER BY id DESC";
-
-$listResult = mysqli_query($db, $listSql);
+$userid = $_SESSION['userid'];
+$stmt = mysqli_prepare($db, 'SELECT * FROM qna WHERE userid = ? ORDER BY id DESC');
+mysqli_stmt_bind_param($stmt, 's', $userid);
+mysqli_stmt_execute($stmt);
+$listResult = mysqli_stmt_get_result($stmt);
 
 ?>
 
@@ -74,7 +51,9 @@ $listResult = mysqli_query($db, $listSql);
 <p><?= $message ?></p>
 <?php endif; ?>
 
-<form method="post">
+<form method="post" action="/coffee/actions/qna_create.php">
+<?= csrf_field() ?>
+<input type="hidden" name="return_to" value="qna_page">
 
 ```
 <input
@@ -105,7 +84,7 @@ $listResult = mysqli_query($db, $listSql);
 <div class="qna-card">
 
 ```
-<h3><?= htmlspecialchars($row['title']) ?></h3>
+<h3><?= e($row['title']) ?></h3>
 
 <p>
     <?= $row['status'] === 'waiting'

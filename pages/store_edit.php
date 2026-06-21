@@ -1,52 +1,21 @@
 <?php
 
-session_start();
-
-if (
-    !isset($_SESSION['role'])
-    || $_SESSION['role'] !== 'admin'
-) {
-    die('관리자만 접근 가능합니다.');
-}
+require_once __DIR__ . '/../includes/auth.php';
+require_admin();
 
 require_once __DIR__ . '/../config/database.php';
 
 $id = (int)$_GET['id'];
 
-$result = mysqli_query(
-    $db,
-    "SELECT * FROM stores WHERE id=$id"
-);
-
-$store = mysqli_fetch_assoc($result);
+$stmt = mysqli_prepare($db, 'SELECT * FROM stores WHERE id = ?');
+mysqli_stmt_bind_param($stmt, 'i', $id);
+mysqli_stmt_execute($stmt);
+$store = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
 
 if (!$store) {
     die('존재하지 않는 매장입니다.');
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-    $name = trim($_POST['name']);
-    $address = trim($_POST['address']);
-    $phone = trim($_POST['phone']);
-    $hours = trim($_POST['hours']);
-
-    mysqli_query(
-        $db,
-        "
-        UPDATE stores
-        SET
-            name='$name',
-            address='$address',
-            phone='$phone',
-            hours='$hours'
-        WHERE id=$id
-        "
-    );
-
-    header('Location: admin_stores.php');
-    exit;
-}
 
 ?>
 
@@ -75,14 +44,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </a>
 </p>
 
-<form method="post">
+<form method="post" action="/coffee/actions/store_update.php">
+<?= csrf_field() ?>
+<input type="hidden" name="id" value="<?= $id ?>">
 
 <p>
 매장명<br>
 <input
     type="text"
     name="name"
-    value="<?= htmlspecialchars($store['name']) ?>"
+    value="<?= e($store['name']) ?>"
     required
 >
 </p>
@@ -92,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <input
     type="text"
     name="address"
-    value="<?= htmlspecialchars($store['address']) ?>"
+    value="<?= e($store['address']) ?>"
     required
 >
 </p>
@@ -102,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <input
     type="text"
     name="phone"
-    value="<?= htmlspecialchars($store['phone']) ?>"
+    value="<?= e($store['phone']) ?>"
 >
 </p>
 
@@ -111,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <input
     type="text"
     name="hours"
-    value="<?= htmlspecialchars($store['hours']) ?>"
+    value="<?= e($store['hours']) ?>"
 >
 </p>
 

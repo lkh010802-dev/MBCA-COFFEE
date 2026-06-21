@@ -1,14 +1,6 @@
-<?php include __DIR__ . '/../includes/admin_nav.php'; ?>
 <?php
-
-session_start();
-
-if (
-    !isset($_SESSION['role'])
-    || $_SESSION['role'] !== 'admin'
-) {
-    die('관리자만 접근 가능합니다.');
-}
+require_once __DIR__ . '/../includes/auth.php';
+require_admin();
 
 include __DIR__ . '/../config/database.php';
 $userCount = mysqli_fetch_row(
@@ -129,6 +121,7 @@ $totalPages =
 <title>관리자 대시보드</title>
 </head>
 <body>
+<?php include __DIR__ . '/../includes/admin_nav.php'; ?>
 
 <h1>관리자 대시보드</h1>
 
@@ -182,7 +175,7 @@ $totalPages =
 
 <td>
 <a href="/coffee/pages/news_view.php?id=<?= $qna['id'] ?>&type=qna">
-<?= htmlspecialchars($qna['title']) ?>
+<?= e($qna['title']) ?>
 </a>
 </td>
 
@@ -222,14 +215,14 @@ $totalPages =
 </td>
 
 <td>
-<?= htmlspecialchars($qna['userid']) ?>
+<?= e($qna['userid']) ?>
 </td>
 
 <td>
 
 <a href="/coffee/pages/news_view.php?id=<?= $qna['id'] ?>&type=qna">
 
-<?= htmlspecialchars($qna['title']) ?>
+<?= e($qna['title']) ?>
 
 </a>
 
@@ -280,11 +273,11 @@ $totalPages =
 <tr>
 
 <td>
-<?= htmlspecialchars($member['userid']) ?>
+<?= e($member['userid']) ?>
 </td>
 
 <td>
-<?= htmlspecialchars($member['name']) ?>
+<?= e($member['name']) ?>
 </td>
 
 <td>

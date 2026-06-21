@@ -1,109 +1,9 @@
 <?php
 
-session_start();
+require_once __DIR__ . '/../includes/auth.php';
+require_admin();
+$uploadError = pull_flash('upload_error', '');
 
-if (
-    !isset($_SESSION['role'])
-    || $_SESSION['role'] !== 'admin'
-) {
-    die('관리자만 접근 가능합니다.');
-}
-
-require_once __DIR__ . '/../config/database.php';
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-    $badge = trim($_POST['badge']);
-    $title = trim($_POST['title']);
-    $description = trim($_POST['description']);
-    $start_date = $_POST['start_date'];
-    $end_date = $_POST['end_date'];
-
-    $period =
-        $start_date .
-        ' ~ ' .
-        $end_date;
-
-    $thumbnailPath = '';
-    $imagePath = '';
-
-    if (
-    isset($_FILES['thumbnail'])
-    && $_FILES['thumbnail']['error'] === 0
-) {
-
-    $fileName =
-        'thumb_' .
-        time() .
-        '_' .
-        basename($_FILES['thumbnail']['name']);
-
-    $uploadDir =
-        $_SERVER['DOCUMENT_ROOT']
-        . '/coffee/assets/images/event/';
-
-    move_uploaded_file(
-        $_FILES['thumbnail']['tmp_name'],
-        $uploadDir . $fileName
-    );
-
-    $thumbnailPath =
-        '/coffee/assets/images/event/' . $fileName;
-}
-
-    if (
-        isset($_FILES['image'])
-        && $_FILES['image']['error'] === 0
-    ) {
-
-        $fileName =
-            time() . '_' .
-            basename($_FILES['image']['name']);
-
-        $uploadDir =
-            $_SERVER['DOCUMENT_ROOT']
-            . '/coffee/assets/images/event/';
-
-        move_uploaded_file(
-            $_FILES['image']['tmp_name'],
-            $uploadDir . $fileName
-        );
-
-        $imagePath =
-            '/coffee/assets/images/event/' . $fileName;
-    }
-
-    mysqli_query(
-        $db,
-        "
-        INSERT INTO events
-        (
-            badge,
-            title,
-            description,
-            period,
-            thumbnail,
-            start_date,
-            end_date,
-            image
-        )
-        VALUES
-        (
-            '$badge',
-            '$title',
-            '$description',
-            '$period',
-            '$thumbnailPath',
-            '$start_date',
-            '$end_date',
-            '$imagePath'
-        )
-        "
-    );
-
-    header('Location: admin_events.php');
-    exit;
-}
 ?>
 
 <!DOCTYPE html>
@@ -122,8 +22,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </p>
 
 <h1>이벤트 등록</h1>
+<?php if ($uploadError): ?><p class="form-message error"><?= e($uploadError) ?></p><?php endif; ?>
 
-<form method="post" enctype="multipart/form-data">
+<form method="post" action="/coffee/actions/event_create.php" enctype="multipart/form-data">
+<?= csrf_field() ?>
 
 <p>
 뱃지<br>
@@ -182,11 +84,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <img
     id="preview"
     src=""
-    style="
-        width:200px;
-        display:none;
-        margin-top:10px;
-    "
+    class="upload-preview upload-preview-spaced"
+    alt="이벤트 이미지 미리보기"
 >
 
 <br><br>
@@ -197,34 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 </form>
 
-<script>
-
-const imageInput =
-    document.querySelector('input[name="image"]');
-
-const preview =
-    document.getElementById('preview');
-
-imageInput.addEventListener('change', function(){
-
-    const file = this.files[0];
-
-    if(!file) return;
-
-    const reader = new FileReader();
-
-    reader.onload = function(e){
-
-        preview.src = e.target.result;
-        preview.style.display = 'block';
-
-    };
-
-    reader.readAsDataURL(file);
-
-});
-
-</script>
+<script src="/coffee/assets/js/image-preview.js"></script>
 
 </body>
 </html>

@@ -1,81 +1,54 @@
 <?php
-session_start();
+require_once __DIR__ . '/../includes/auth.php';
+ensure_session_started();
 
 include __DIR__ . '/../config/database.php';
 
-function e($value) {
-    return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
-}
-
 $id = (int)($_GET['id'] ?? 0);
 $type = $_GET['type'] ?? 'notice';
+
+if (!in_array($type, ['notice', 'qna'], true)) {
+    $type = 'notice';
+}
 
 if (!$id) {
     die('잘못된 접근입니다.');
 }
 
-if ($type === 'notice') {
-    mysqli_query($db, "UPDATE notices SET views = views + 1 WHERE id = $id");
-    $sql = "SELECT * FROM notices WHERE id = $id";
-} else {
-    mysqli_query($db, "UPDATE qna SET views = views + 1 WHERE id = $id");
-    $sql = "SELECT * FROM qna WHERE id = $id";
-}
+$table = $type === 'notice' ? 'notices' : 'qna';
+$stmt = mysqli_prepare($db, "UPDATE $table SET views = views + 1 WHERE id = ?");
+mysqli_stmt_bind_param($stmt, 'i', $id);
+mysqli_stmt_execute($stmt);
 
-$result = mysqli_query($db, $sql);
-$post = mysqli_fetch_assoc($result);
+$stmt = mysqli_prepare($db, "SELECT * FROM $table WHERE id = ?");
+mysqli_stmt_bind_param($stmt, 'i', $id);
+mysqli_stmt_execute($stmt);
+$post = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
 
 if (!$post) {
     die('게시글이 존재하지 않습니다.');
 }
 
-$table = $type === 'notice' ? 'notices' : 'qna';
+$stmt = mysqli_prepare($db, "SELECT id, title FROM $table WHERE id < ? ORDER BY id DESC LIMIT 1");
+mysqli_stmt_bind_param($stmt, 'i', $id);
+mysqli_stmt_execute($stmt);
+$prevResult = mysqli_stmt_get_result($stmt);
 
-$prevResult = mysqli_query(
-    $db,
-    "SELECT id, title FROM $table WHERE id < $id ORDER BY id DESC LIMIT 1"
-);
-
-$nextResult = mysqli_query(
-    $db,
-    "SELECT id, title FROM $table WHERE id > $id ORDER BY id ASC LIMIT 1"
-);
+$stmt = mysqli_prepare($db, "SELECT id, title FROM $table WHERE id > ? ORDER BY id ASC LIMIT 1");
+mysqli_stmt_bind_param($stmt, 'i', $id);
+mysqli_stmt_execute($stmt);
+$nextResult = mysqli_stmt_get_result($stmt);
 
 $prevPost = mysqli_fetch_assoc($prevResult);
 $nextPost = mysqli_fetch_assoc($nextResult);
 
-if (
-    $type === 'qna' &&
-    isset($_SESSION['role']) &&
-    $_SESSION['role'] === 'admin' &&
-    $_SERVER['REQUEST_METHOD'] === 'POST'
-) {
-    $reply = trim($_POST['reply']);
-    $adminId = $_SESSION['userid'];
-
-    mysqli_query(
-        $db,
-        "INSERT INTO qna_reply (qna_id, admin_id, content)
-         VALUES ($id, '$adminId', '$reply')"
-    );
-
-    mysqli_query($db, "UPDATE qna SET status='answered' WHERE id=$id");
-
-    header("Location: news_view.php?id=$id&type=qna");
-    exit;
-}
-
 $reply = null;
 
 if ($type === 'qna') {
-    $replyResult = mysqli_query(
-        $db,
-        "SELECT *
-         FROM qna_reply
-         WHERE qna_id = $id
-         ORDER BY id DESC
-         LIMIT 1"
-    );
+    $stmt = mysqli_prepare($db, 'SELECT * FROM qna_reply WHERE qna_id = ? ORDER BY id DESC LIMIT 1');
+    mysqli_stmt_bind_param($stmt, 'i', $id);
+    mysqli_stmt_execute($stmt);
+    $replyResult = mysqli_stmt_get_result($stmt);
 
     $reply = mysqli_fetch_assoc($replyResult);
 }
@@ -131,7 +104,9 @@ if ($type === 'qna') {
             <div class="reply-write-box">
                 <h3>관리자 답변 작성</h3>
 
-                <form method="post">
+                <form method="post" action="/coffee/actions/qna_reply.php">
+<?= csrf_field() ?>
+                    <input type="hidden" name="qna_id" value="<?= $id ?>">
                     <textarea
                         name="reply"
                         rows="6"
@@ -176,12 +151,11 @@ if ($type === 'qna') {
                     수정
                 </a>
 
-                <a
-                    href="/coffee/pages/notice_delete.php?id=<?= $id ?>"
-                    onclick="return confirm('삭제하시겠습니까?');"
-                >
-                    삭제
-                </a>
+                <form class="inline-delete-form" method="post" action="/coffee/actions/notice_delete.php" onsubmit="return confirm('삭제하시겠습니까?');">
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="id" value="<?= $id ?>">
+                    <button class="delete-link" type="submit">삭제</button>
+                </form>
             <?php endif; ?>
 
             <?php if(
@@ -205,12 +179,11 @@ if ($type === 'qna') {
                     )
                 )
             ): ?>
-                <a
-                    href="/coffee/pages/qna_delete.php?id=<?= $id ?>"
-                    onclick="return confirm('삭제하시겠습니까?');"
-                >
-                    문의 삭제
-                </a>
+                <form class="inline-delete-form" method="post" action="/coffee/actions/qna_delete.php" onsubmit="return confirm('삭제하시겠습니까?');">
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="id" value="<?= $id ?>">
+                    <button class="delete-link" type="submit">문의 삭제</button>
+                </form>
             <?php endif; ?>
         </div>
 

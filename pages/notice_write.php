@@ -1,41 +1,7 @@
 <?php
-session_start();
+require_once __DIR__ . '/../includes/auth.php';
+require_admin();
 
-include __DIR__ . '/../config/database.php';
-
-if (
-    !isset($_SESSION['role']) ||
-    $_SESSION['role'] !== 'admin'
-) {
-    die('관리자만 접근 가능합니다.');
-}
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-    $title = trim($_POST['title']);
-    $content = trim($_POST['content']);
-
-    $isPinned =
-        isset($_POST['is_pinned'])
-        ? 1
-        : 0;
-
-    $writer = $_SESSION['userid'];
-
-    $sql = "INSERT INTO notices
-            (title, content, writer, is_pinned)
-            VALUES
-            ('$title', '$content', '$writer', $isPinned)";
-
-    $result = mysqli_query($db, $sql);
-
-    if (!$result) {
-        die(mysqli_error($db));
-    }
-
-    header('Location: /coffee/pages/news.php?type=notice');
-    exit;
-}
 ?>
 <!DOCTYPE html>
 <html lang="ko">
@@ -59,7 +25,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <h1>공지사항 작성</h1>
 
-        <form method="post">
+        <form method="post" action="/coffee/actions/notice_create.php">
+<?= csrf_field() ?>
 
             <div class="form-row">
                 <label>공지 제목</label>

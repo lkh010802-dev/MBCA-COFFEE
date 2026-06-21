@@ -1,13 +1,7 @@
 <?php
 
-session_start();
-
-if (
-    !isset($_SESSION['role'])
-    || $_SESSION['role'] !== 'admin'
-) {
-    die('관리자만 접근 가능합니다.');
-}
+require_once __DIR__ . '/../includes/auth.php';
+require_admin();
 
 require_once __DIR__ . '/../config/database.php';
 
@@ -66,19 +60,19 @@ $result = mysqli_query(
 </td>
 
 <td>
-<?= htmlspecialchars($store['name']) ?>
+<?= e($store['name']) ?>
 </td>
 
 <td>
-<?= htmlspecialchars($store['address']) ?>
+<?= e($store['address']) ?>
 </td>
 
 <td>
-<?= htmlspecialchars($store['phone']) ?>
+<?= e($store['phone']) ?>
 </td>
 
 <td>
-<?= htmlspecialchars($store['hours']) ?>
+<?= e($store['hours']) ?>
 </td>
 
 <td>
@@ -89,12 +83,11 @@ $result = mysqli_query(
 
 |
 
-<a
-    href="store_delete.php?id=<?= $store['id'] ?>"
-    onclick="return confirm('삭제하시겠습니까?')"
->
-삭제
-</a>
+<form class="inline-delete-form" method="post" action="/coffee/actions/store_delete.php" onsubmit="return confirm('삭제하시겠습니까?');">
+    <?= csrf_field() ?>
+    <input type="hidden" name="id" value="<?= (int)$store['id'] ?>">
+    <button class="delete-link" type="submit">삭제</button>
+</form>
 
 </td>
 

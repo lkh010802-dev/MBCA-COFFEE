@@ -1,50 +1,24 @@
 <?php
 
-session_start();
-
+require_once __DIR__ . '/../includes/auth.php';
+require_login();
 include __DIR__ . '/../config/database.php';
 
 $id = (int)($_GET['id'] ?? 0);
 
-$result = mysqli_query(
-    $db,
-    "SELECT *
-     FROM qna
-     WHERE id=$id"
-);
-
-$qna = mysqli_fetch_assoc($result);
+$stmt = mysqli_prepare($db, 'SELECT * FROM qna WHERE id = ?');
+mysqli_stmt_bind_param($stmt, 'i', $id);
+mysqli_stmt_execute($stmt);
+$qna = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
 
 if(!$qna){
     die('문의가 존재하지 않습니다.');
 }
 
 if(
-    !isset($_SESSION['userid'])
-    ||
     $_SESSION['userid'] !== $qna['userid']
 ){
     die('수정 권한이 없습니다.');
-}
-if($_SERVER['REQUEST_METHOD'] === 'POST'){
-
-    $title = trim($_POST['title']);
-    $content = trim($_POST['content']);
-
-    mysqli_query(
-        $db,
-        "UPDATE qna
-         SET
-            title='$title',
-            content='$content'
-         WHERE id=$id"
-    );
-
-    header(
-        "Location: news_view.php?id=$id&type=qna"
-    );
-
-    exit;
 }
 ?>
 <!DOCTYPE html>
@@ -58,12 +32,14 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
 
 <h1>문의 수정</h1>
 
-<form method="post">
+<form method="post" action="/coffee/actions/qna_update.php">
+<?= csrf_field() ?>
+<input type="hidden" name="id" value="<?= $id ?>">
 
 <input
     type="text"
     name="title"
-    value="<?= htmlspecialchars($qna['title']) ?>"
+    value="<?= e($qna['title']) ?>"
     required
 >
 
@@ -74,7 +50,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
     rows="10"
     cols="80"
     required
-><?= htmlspecialchars($qna['content']) ?></textarea>
+><?= e($qna['content']) ?></textarea>
 
 <br><br>
 

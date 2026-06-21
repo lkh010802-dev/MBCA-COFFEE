@@ -9,14 +9,14 @@ $categoryNames = [
     'goods'  => '상품'
 ];
 
-$sql = "
-SELECT *
-FROM menus
-WHERE category='$category'
-ORDER BY id DESC
-";
+if (!array_key_exists($category, $categoryNames)) {
+    $category = 'drink';
+}
 
-$result = mysqli_query($db, $sql);
+$stmt = mysqli_prepare($db, 'SELECT * FROM menus WHERE category = ? ORDER BY id DESC');
+mysqli_stmt_bind_param($stmt, 's', $category);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
 
 $menus = [];
 
@@ -81,9 +81,9 @@ while ($row = mysqli_fetch_assoc($result)) {
           data-price="<?= number_format($menu['price']) ?>원"
           data-desc="<?= $menu['description'] ?>"
           data-nutrition="<?= $menu['nutrition'] ?>"
-          data-image="<?= $menu['image'] ?>"
+          data-image="<?= e(image_url($menu['image'], 'menu')) ?>"
         >
-          <img src="<?= $menu['image'] ?>" alt="<?= $menu['name'] ?>">
+          <img src="<?= e(image_url($menu['image'], 'menu')) ?>" alt="<?= e($menu['name']) ?>">
           <?php if($menu['is_best']): ?>
               <span class="best-badge">
                   BEST

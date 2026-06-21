@@ -1,66 +1,8 @@
 <?php
-session_start();
-
-include __DIR__ . '/../config/database.php';
-
-if (!isset($_SESSION['userid'])) {
-    header('Location: /coffee/pages/login.php');
-    exit;
-}
-
-$errorMessage = '';
-$successMessage = '';
-
-$userid = $_SESSION['userid'];
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-    $currentPassword = trim($_POST['current_password']);
-    $newPassword = trim($_POST['new_password']);
-    $newPasswordCheck = trim($_POST['new_password_check']);
-
-    $result = mysqli_query(
-        $db,
-        "SELECT *
-         FROM users
-         WHERE userid='$userid'"
-    );
-
-    $user = mysqli_fetch_assoc($result);
-
-    if (
-        !password_verify(
-            $currentPassword,
-            $user['password']
-        )
-    ) {
-        $errorMessage = '현재 비밀번호가 올바르지 않습니다.';
-    } elseif ($newPassword !== $newPasswordCheck) {
-        $errorMessage = '새 비밀번호가 일치하지 않습니다.';
-    } elseif (
-        !preg_match(
-            '/^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/',
-            $newPassword
-        )
-    ) {
-        $errorMessage = '영문, 숫자, 특수문자를 포함한 8자 이상 입력해주세요.';
-    } else {
-
-        $hashedPassword = password_hash(
-            $newPassword,
-            PASSWORD_DEFAULT
-        );
-
-        mysqli_query(
-            $db,
-            "UPDATE users
-             SET password='$hashedPassword'
-             WHERE userid='$userid'"
-        );
-
-        $successMessage = '비밀번호가 변경되었습니다.';
-    }
-}
+require_once __DIR__ . '/../includes/auth.php';
+require_login();
+$errorMessage = pull_flash('password_error', '');
+$successMessage = pull_flash('password_success', '');
 ?>
 <!DOCTYPE html>
 <html lang="ko">
@@ -85,17 +27,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <?php if($errorMessage): ?>
             <p class="form-message error">
-                <?= htmlspecialchars($errorMessage) ?>
+                <?= e($errorMessage) ?>
             </p>
         <?php endif; ?>
 
         <?php if($successMessage): ?>
             <p class="form-message success">
-                <?= htmlspecialchars($successMessage) ?>
+                <?= e($successMessage) ?>
             </p>
         <?php endif; ?>
 
-        <form method="post">
+        <form method="post" action="/coffee/actions/password_update.php">
+<?= csrf_field() ?>
 
             <div class="form-row">
                 <label>현재 비밀번호</label>

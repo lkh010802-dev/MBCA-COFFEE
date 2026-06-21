@@ -209,3 +209,83 @@ body {
     color: #666;
     font-weight: 700;
 }
+.inline-delete-form {
+    display: inline;
+}
+
+.delete-link {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+}
+.admin-list-page {
+    padding: 40px;
+    font-family: sans-serif;
+}
+
+.admin-list-page table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.admin-list-page th,
+.admin-list-page td {
+    padding: 10px;
+    border: 1px solid #ddd;
+}
+
+.admin-list-page th {
+    background: #f5f5f5;
+}
+
+.admin-list-page .add-btn {
+    display: inline-block;
+    margin-bottom: 20px;
+    padding: 10px 16px;
+    background: #333;
+    color: #fff;
+    text-decoration: none;
+}
+
+.admin-list-page img {
+    border-radius: 10px;
+}
+.admin-table-thumbnail {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+}
+
+.current-image {
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+}
+
+.current-image-thumbnail {
+    width: 250px;
+}
+
+.current-image-detail {
+    width: 300px;
+}
+
+.form-divider {
+    margin: 30px 0;
+}
+
+.upload-preview {
+    display: none;
+    width: 200px;
+}
+
+.upload-preview-spaced {
+    margin-top: 10px;
+}
+
+.upload-preview-bordered {
+    border: 1px solid #ddd;
+}

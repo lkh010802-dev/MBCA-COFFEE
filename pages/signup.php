@@ -1,116 +1,7 @@
 <?php
-
-include __DIR__ . '/../config/database.php';
-$errorMessage = '';
-$errors = [];                               //회원가입 처리구역
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-    $userId = trim($_POST['user_id']);
-if(
-    !preg_match(
-        '/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d_]{6,}$/',
-        $userId
-    )
-){
-    $errors['user_id']
-        = '영문과 숫자를 포함한 6자 이상';
-}
-else
-{
-    $checkResult = mysqli_query(
-        $db,
-        "SELECT userid
-         FROM users
-         WHERE userid='$userId'"
-    );
-
-    if(mysqli_num_rows($checkResult) > 0){
-
-        $errors['user_id']
-            = '이미 사용중인 아이디';
-    }
-}
-    $userName = trim($_POST['user_name']);
-    $email = trim($_POST['email']);
-    if(
-    !filter_var(
-        $email,
-        FILTER_VALIDATE_EMAIL
-    )
-){
-    $errors['email']
-        = '올바른 이메일 형식이 아닙니다';
-}
-$phone = trim($_POST['phone']);
-
-if(
-    !preg_match(
-        '/^010-\d{4}-\d{4}$/',
-        $phone
-    )
-){
-    $errors['phone']
-        = '010-0000-0000 형식';
-}
-
-$password = trim($_POST['password']);
-
-if(
-    !preg_match(
-        '/^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/',
-        $password
-    )
-){
-    $errors['password']
-        = '영문, 숫자, 특수문자 포함 8자 이상';
-}
-    $passwordCheck = trim($_POST['password_check']);
-    if(
-    !isset($_POST['agree_terms'])
-){
-    $errors['agree_terms']
-        = '약관 동의 필수';
-}
-
- if ($password !== $passwordCheck) {
-
-    $errors['password_check']
-        = '비밀번호 불일치';
-}
-
-if (empty($errors)) {
-
-$hashedPassword =
-    password_hash(
-        $password,
-        PASSWORD_DEFAULT
-    );
-
-$sql = "INSERT INTO users
-        (userid, password, name, email, phone)
-        VALUES
-        ('$userId',
-         '$hashedPassword',
-         '$userName',
-         '$email',
-         '$phone')";
-    $result = mysqli_query($db, $sql);
-
-    if ($result) {
-
-        echo "<script>
-                alert('회원가입 완료');
-                location.href='/coffee/pages/login.php';
-              </script>";
-        exit;
-
-    } else {
-
-        $errorMessage = '회원가입 실패';
-    }
-}
-}
+require_once __DIR__ . '/../includes/auth.php';
+$errorMessage = pull_flash('signup_error', '');
+$errors = pull_flash('signup_errors', []);
 ?>
 <!DOCTYPE html>
 <html lang="ko">
@@ -134,10 +25,11 @@ $sql = "INSERT INTO users
       </div>
 
       <?php if ($errorMessage): ?>
-        <p class="auth-error"><?= htmlspecialchars($errorMessage, ENT_QUOTES, 'UTF-8') ?></p>
+        <p class="auth-error"><?= e($errorMessage) ?></p>
       <?php endif; ?>
 
-      <form class="auth-form" action="#" method="post">
+      <form class="auth-form" action="/coffee/actions/signup.php" method="post">
+<?= csrf_field() ?>
         <label for="userId">
 
 아이디
@@ -262,48 +154,7 @@ if(isset($errors['agree_terms']))
       </div>
     </section>
   </main>
-<script>
-
-const phoneInput =
-    document.getElementById('phone');
-
-phoneInput.addEventListener(
-    'input',
-    function () {
-
-        let value =
-            this.value.replace(/\D/g, '');
-
-        if(value.length > 11){
-
-            value =
-                value.substring(0, 11);
-        }
-
-        if(value.length < 4){
-
-            this.value = value;
-
-        }else if(value.length < 8){
-
-            this.value =
-                value.replace(
-                    /(\d{3})(\d+)/,
-                    '$1-$2'
-                );
-
-        }else{
-
-            this.value =
-                value.replace(
-                    /(\d{3})(\d{4})(\d+)/,
-                    '$1-$2-$3'
-                );
-        }
-    }
-);
-
-</script>
+  <script src="/coffee/assets/js/signup.js"></script>
 
   <script src="/coffee/assets/js/nav.js"></script>
   <?php include __DIR__ . '/../includes/footer.php'; ?>

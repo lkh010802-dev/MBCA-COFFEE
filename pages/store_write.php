@@ -1,52 +1,9 @@
 <?php
 
-session_start();
+require_once __DIR__ . '/../includes/auth.php';
+require_admin();
 
-if (
-    !isset($_SESSION['role'])
-    || $_SESSION['role'] !== 'admin'
-) {
-    die('관리자만 접근 가능합니다.');
-}
 
-require_once __DIR__ . '/../config/database.php';
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-    $name = trim($_POST['name']);
-    $address = trim($_POST['address']);
-    $phone = trim($_POST['phone']);
-    $hours = trim($_POST['hours']);
-    $lat = $_POST['lat'];
-    $lng = $_POST['lng'];
-
-    mysqli_query(
-        $db,
-        "
-        INSERT INTO stores
-        (
-            name,
-            address,
-            phone,
-            hours,
-            lat,
-            lng
-        )
-        VALUES
-        (
-            '$name',
-            '$address',
-            '$phone',
-            '$hours',
-            '$lat',
-            '$lng'
-        )
-        "
-    );
-
-    header('Location: admin_stores.php');
-    exit;
-}
 
 ?>
 
@@ -75,7 +32,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </a>
 </p>
 
-<form method="post">
+<form method="post" action="/coffee/actions/store_create.php">
+<?= csrf_field() ?>
 
 <p>
 매장명<br>
